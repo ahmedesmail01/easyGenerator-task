@@ -1,0 +1,15 @@
+# Dependencies and build output across client and server
+node_modules/
+dist/
+build/
+coverage/
+
+# Local environment files (keep examples trackable)
+.env
+.env.*
+!.env.example
+!.env.sample
+
+# Local system files and logs
+.DS_Store
+*.log

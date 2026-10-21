@@ -1,11 +1,10 @@
 
-import './App.css'
+import { RouterProvider } from '@tanstack/react-router'
+import { router } from './router'
 
 function App() {
 
-  return (
-    <>Hello World!</>
-  )
+  return <RouterProvider router={router} />
 }
 
 export default App

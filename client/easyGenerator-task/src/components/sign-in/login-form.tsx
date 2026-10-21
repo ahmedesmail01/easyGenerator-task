@@ -1,3 +1,4 @@
+import { apiErrorMessage } from '@/features/auth/api'
 import { PasswordInput } from '@/components/ui/password-input'
 import { cn } from "cn"
 import { useForm } from 'react-hook-form'
@@ -20,9 +21,9 @@ export function LoginForm({
   onSubmit,
   ...props
 }: Omit<React.ComponentProps<"form">, 'onSubmit'> & {
-  onSubmit?: (values: SignInValues) => void | Promise<void>
+  onSubmit: (values: SignInValues) => void | Promise<void>
 }) {
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<SignInValues>({
+  const { register, handleSubmit, setError, clearErrors, formState: { errors, isSubmitting } } = useForm<SignInValues>({
     resolver: zodResolver(signInSchema),
     defaultValues: { email: '', password: '' },
     mode: 'onBlur',
@@ -33,7 +34,11 @@ export function LoginForm({
       {...props}
       className={cn("flex flex-col gap-6", className)}
       noValidate
-      onSubmit={handleSubmit(async (values) => { await onSubmit?.(values) })}
+      onSubmit={handleSubmit(async (values) => {
+        clearErrors('root')
+        try { await onSubmit(values) }
+        catch (error) { setError('root.server', { message: apiErrorMessage(error) }) }
+      })}
       aria-busy={isSubmitting}
     >
       <FieldGroup>
@@ -80,6 +85,7 @@ export function LoginForm({
           <FieldError id="password-error" errors={[errors.password]} />
         </Field>
         <Field>
+          <FieldError errors={[errors.root?.server]} />
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? 'Logging in…' : 'Login'}
           </Button>

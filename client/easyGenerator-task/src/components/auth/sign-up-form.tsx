@@ -1,3 +1,4 @@
+import { apiErrorMessage } from '@/features/auth/api'
 import { PasswordInput } from '@/components/ui/password-input'
 import { useForm, useWatch } from 'react-hook-form'
 import { Check, Circle } from 'lucide-react'
@@ -10,11 +11,11 @@ import { Input } from '@/components/ui/input'
 import { passwordRequirements, signUpSchema, type SignUpValues } from '@/lib/validations/sign-up'
 
 type SignUpFormProps = Omit<React.ComponentProps<'form'>, 'onSubmit'> & {
-  onSubmit?: (values: Omit<SignUpValues, 'confirmPassword'>) => void | Promise<void>
+  onSubmit: (values: Omit<SignUpValues, 'confirmPassword'>) => void | Promise<void>
 }
 
 export function SignUpForm({ className, onSubmit, ...props }: SignUpFormProps) {
-  const { register, control, handleSubmit, formState: { errors, isSubmitting } } = useForm<SignUpValues>({
+  const { register, control, handleSubmit, setError, clearErrors, formState: { errors, isSubmitting } } = useForm<SignUpValues>({
     resolver: zodResolver(signUpSchema),
     defaultValues: { name: '', email: '', password: '', confirmPassword: '' },
     mode: 'onChange',
@@ -24,7 +25,9 @@ export function SignUpForm({ className, onSubmit, ...props }: SignUpFormProps) {
   return (
     <form {...props} className={cn('flex flex-col gap-6', className)} noValidate
       onSubmit={handleSubmit(async ({ name, email, password }) => {
-        await onSubmit?.({ name, email, password })
+        clearErrors('root')
+        try { await onSubmit({ name, email, password }) }
+        catch (error) { setError('root.server', { message: apiErrorMessage(error) }) }
       })}
       aria-busy={isSubmitting}>
       <FieldGroup>
@@ -73,6 +76,7 @@ export function SignUpForm({ className, onSubmit, ...props }: SignUpFormProps) {
           <FieldError id="signup-confirm-password-error" errors={[errors.confirmPassword]} />
         </Field>
         <Field>
+          <FieldError errors={[errors.root?.server]} />
           <Button type="submit" disabled={isSubmitting}>{isSubmitting ? 'Creating account…' : 'Create account'}</Button>
           <FieldDescription className="text-center">
             Already have an account? <Link to="/sign-in">Log in</Link>

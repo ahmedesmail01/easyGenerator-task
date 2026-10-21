@@ -124,7 +124,7 @@ rm /tmp/easygenerator-cookies.txt
 
 The existing Vite `/api` proxy maps `/api/auth/...` to these endpoints. Browser same-origin requests send cookies automatically. For direct requests from the frontend to a different API origin, use Axios `withCredentials: true` and set `CLIENT_ORIGIN` to the exact frontend origin (no trailing slash). The cookie is HttpOnly: do not read it from JavaScript or copy it into localStorage. Get session state from `/auth/me`. Clear user-specific TanStack Query caches on logout and when switching accounts.
 
-The forms are **not connected to this API in this server change**. Their typed submit callbacks are ready for integration.
+The client forms are connected through `src/features/auth/api.ts` using Axios and TanStack Query. Successful registration returns to sign-in with a confirmation message; login loads `/app`. The protected route checks `/auth/me` before entry and loads its welcome message from `/auth/application`. Active sessions are rechecked on focus and every minute. Logout revokes the session and clears cached data. Server/API errors are displayed inline. No session token is stored in localStorage.
 
 ## Security and production settings
 

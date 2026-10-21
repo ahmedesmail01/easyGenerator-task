@@ -3,8 +3,13 @@ import { GlyphBackground } from '@/components/animate-ui/backgrounds/glyph'
 import { createFileRoute } from '@tanstack/react-router'
 import { LibraryBig } from "lucide-react"
 import heroImage from '@/assets/easygenerator-hero.png'
-import { useId } from 'react'
-import { motion, useReducedMotion } from 'motion/react'
+import processImage from '@/assets/easygenerator-process.png'
+import kvImage from '@/assets/easygenerator-kv.png'
+import kvSecondImage from '@/assets/easygenerator-kv-2.png'
+import { useEffect, useId, useState } from 'react'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
+
+const heroImages = [heroImage, kvImage, kvSecondImage]
 
 const brandShapePath = 'M8.3851 40.394C-2.78328 34.0299 -2.74884 7.70101 8.21193 1.51847C19.1727 -4.66408 41.9104 9.26554 41.9104 21.1043C41.9104 32.943 19.5535 46.7581 8.3851 40.394Z'
 const bubblePaths = [
@@ -22,6 +27,25 @@ export const Route = createFileRoute('/sign-in')({
 function SignInPage() {
   const imageClipId = useId()
   const reduceMotion = useReducedMotion()
+  const [activeImage, setActiveImage] = useState(0)
+
+  useEffect(() => {
+    // Preload each frame so crossfades never reveal an unloaded image.
+    heroImages.forEach((src) => {
+      const image = new Image()
+      image.src = src
+    })
+  }, [])
+
+  useEffect(() => {
+    if (reduceMotion) return
+    const interval = window.setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        setActiveImage((current) => (current + 1) % heroImages.length)
+      }
+    }, 5000)
+    return () => window.clearInterval(interval)
+  }, [reduceMotion])
   const shapeAnimation = reduceMotion ? undefined : { d: bubblePaths }
   const shapeTransition = { duration: 9, repeat: Infinity, ease: 'easeInOut' as const }
   // Build the sign-in UI here.
@@ -58,8 +82,8 @@ function SignInPage() {
           <motion.svg
             viewBox="0 0 42 42"
             role="img"
-            aria-label="A learner working on a laptop"
-            className="w-full max-w-md overflow-visible drop-shadow-2xl"
+            aria-label="Easygenerator learning and product imagery"
+            className="w-full max-w-xl overflow-visible drop-shadow-2xl"
           >
             <defs>
               <clipPath id={imageClipId}>
@@ -68,13 +92,20 @@ function SignInPage() {
             </defs>
             <motion.path d={brandShapePath} animate={shapeAnimation} transition={shapeTransition} className="fill-brand" />
             <g transform="translate(1 -3) scale(1.08)">
-              <image
-                href={heroImage}
+              <AnimatePresence initial={false}>
+              <motion.image
+                key={activeImage}
+                href={heroImages[activeImage]}
                 width="42"
                 height="42"
                 preserveAspectRatio="xMidYMid slice"
                 clipPath={`url(#${imageClipId})`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: reduceMotion ? 0 : 1.2, ease: 'easeInOut' }}
               />
+              </AnimatePresence>
             </g>
           </motion.svg>
         </div>

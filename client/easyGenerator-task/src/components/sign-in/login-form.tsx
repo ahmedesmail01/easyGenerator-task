@@ -1,3 +1,4 @@
+import { PasswordInput } from '@/components/ui/password-input'
 import { cn } from "cn"
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -68,10 +69,9 @@ export function LoginForm({
               Forgot your password?
             </a> */}
           </div>
-          <Input
+          <PasswordInput
             {...register('password')}
             id="password"
-            type="password"
             autoComplete="current-password"
             required
             aria-invalid={!!errors.password}

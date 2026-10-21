@@ -1,12 +1,14 @@
 import { cn } from "cn"
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { Link } from '@tanstack/react-router'
 import { signInSchema, type SignInValues } from '@/lib/validations/sign-in'
 
 import { Button } from "@/components/ui/button"
 import {
   Field,
   FieldError,
+  FieldDescription,
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field"
@@ -81,6 +83,9 @@ export function LoginForm({
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting ? 'Logging in…' : 'Login'}
           </Button>
+          <FieldDescription className="text-center">
+            Don’t have an account? <Link to="/sign-up">Sign up</Link>
+          </FieldDescription>
         </Field>
         
       </FieldGroup>

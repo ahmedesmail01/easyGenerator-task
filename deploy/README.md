@@ -59,7 +59,7 @@ bash deploy/init.sh --host-nginx
 nano /opt/easygenerator/shared/.env
 ```
 
-Verify `DOMAIN` and `SHARED_DIR`. For this VPS, install `deploy/nginx.conf` as a new site, test with `nginx -t`, then reload Nginx. Obtain a certificate with Certbot webroot `/var/www/easygenerator-acme` once DNS resolves, and enable HTTPS for this domain only. Certbot renewal must reload Nginx. The `--host-nginx` marker enables `compose.nginx.yml`, keeping Caddy bound to localhost. `init.sh` is idempotent: it does not regenerate existing database passwords. Do not regenerate or edit password files after the MongoDB volume has initialized; password rotation requires updating the MongoDB users too.
+Verify `DOMAIN` and `SHARED_DIR`. For this VPS, bootstrap a new HTTP-only site with the ACME location from `deploy/nginx.conf`. Obtain a certificate with Certbot webroot `/var/www/easygenerator-acme` once DNS resolves, then install the complete `deploy/nginx.conf`, test with `nginx -t`, and reload Nginx. Certbot renewal must reload Nginx. The `--host-nginx` marker enables `compose.nginx.yml`, keeping Caddy bound to localhost. `init.sh` is idempotent: it does not regenerate existing database passwords. Do not regenerate or edit password files after the MongoDB volume has initialized; password rotation requires updating the MongoDB users too.
 
 The shared directory is mode 0700. Secret files inside are readable by their intended non-root containers through mounted secret paths; they cannot be reached by other host users through the protected parent directory.
 

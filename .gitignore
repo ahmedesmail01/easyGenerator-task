@@ -13,3 +13,8 @@ coverage/
 # Local system files and logs
 .DS_Store
 *.log
+
+# Local deployment credentials and backups
+.deployment/
+*.archive.gz
+*.partial

@@ -28,6 +28,9 @@ export function validateEnvironment(env: Record<string, unknown>) {
   }
   if (nodeEnv === 'production' && parsedOrigin.protocol !== 'https:')
     throw new Error('Production requires an HTTPS CLIENT_ORIGIN');
+  const proxyHops = Number(env.TRUST_PROXY_HOPS ?? 0);
+  if (!Number.isInteger(proxyHops) || proxyHops < 0 || proxyHops > 5)
+    throw new Error('TRUST_PROXY_HOPS must be between 0 and 5');
   const port = Number(env.PORT ?? 3000);
   const sessionTtl = Number(env.SESSION_TTL_SECONDS ?? 604800);
   if (!Number.isInteger(port) || port < 1 || port > 65535)
@@ -36,6 +39,7 @@ export function validateEnvironment(env: Record<string, unknown>) {
     throw new Error('SESSION_TTL_SECONDS must be between 60 and 2592000');
   return {
     ...env,
+    TRUST_PROXY_HOPS: proxyHops,
     NODE_ENV: nodeEnv,
     MONGODB_URI: mongoUri,
     CLIENT_ORIGIN: origin,

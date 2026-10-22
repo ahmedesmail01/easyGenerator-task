@@ -26,4 +26,10 @@ export default defineConfig([
       'react-refresh/only-export-components': 'off',
     },
   },
+  {
+    files: ['src/components/ui/button.tsx'],
+    rules: {
+      'react-refresh/only-export-components': ['error', { allowExportNames: ['buttonVariants'] }],
+    },
+  },
 ])

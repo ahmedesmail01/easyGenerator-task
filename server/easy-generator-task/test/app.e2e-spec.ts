@@ -42,6 +42,12 @@ describe('MongoDB authentication (isolated database)', () => {
   const post = (path: string) =>
     request(app.getHttpServer()).post(path).set('Origin', origin);
 
+  it('reports database readiness', async () => {
+    await request(app.getHttpServer())
+      .get('/health')
+      .expect(200, { status: 'ok' });
+  });
+
   it('rejects missing/foreign origins and unauthenticated protected access', async () => {
     await request(app.getHttpServer())
       .post('/auth/sign-in')

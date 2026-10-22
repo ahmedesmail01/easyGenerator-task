@@ -1,3 +1,4 @@
+import { HealthController } from './health/health.controller.js';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
@@ -16,7 +17,7 @@ import { validateEnvironment } from './config/environment.js';
     ThrottlerModule.forRoot([{ ttl: 60000, limit: 100 }]),
     AuthModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, HealthController],
   providers: [
     AppService,
     { provide: APP_GUARD, useClass: ThrottlerGuard },

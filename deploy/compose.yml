@@ -1,0 +1,93 @@
+name: easygenerator
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  mongo:
+    image: mongo:8.0
+    command: ["mongod", "--wiredTigerCacheSizeGB", "0.25"]
+    mem_limit: 1g
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD_FILE: /run/secrets/mongo_root_password
+      MONGO_INITDB_DATABASE: easygenerator
+    secrets:
+      - mongo_root_password
+      - mongo_app_password
+    volumes:
+      - mongo_data:/data/db
+      - ${SHARED_DIR:?Set SHARED_DIR}/mongo-init.js:/docker-entrypoint-initdb.d/01-user.js:ro
+      - ${SHARED_DIR:?Set SHARED_DIR}/mongo-healthcheck.js:/healthcheck.js:ro
+    networks: [backend]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "/healthcheck.js"]
+      interval: 15s
+      timeout: 10s
+      start_period: 30s
+      retries: 10
+    logging: *logging
+
+  api:
+    image: easygenerator-api:${IMAGE_TAG:?Set IMAGE_TAG}
+    mem_limit: 1g
+    restart: unless-stopped
+    init: true
+    environment:
+      NODE_OPTIONS: --max-old-space-size=256
+      NODE_ENV: production
+      PORT: "3000"
+      CLIENT_ORIGIN: https://${DOMAIN:?Set DOMAIN}
+      SESSION_TTL_SECONDS: ${SESSION_TTL_SECONDS:-604800}
+      TRUST_PROXY_HOPS: "1"
+    secrets: [mongo_app_password]
+    depends_on:
+      mongo:
+        condition: service_healthy
+    networks: [backend]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    stop_grace_period: 30s
+    logging: *logging
+
+  web:
+    image: easygenerator-web:${IMAGE_TAG:?Set IMAGE_TAG}
+    mem_limit: 256m
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:?Set DOMAIN}
+      ACME_EMAIL: ${ACME_EMAIL:?Set ACME_EMAIL}
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [frontend, backend]
+    logging: *logging
+
+networks:
+  frontend:
+  backend:
+    internal: true
+
+volumes:
+  mongo_data:
+  caddy_data:
+  caddy_config:
+
+secrets:
+  mongo_root_password:
+    file: ${SHARED_DIR:?Set SHARED_DIR}/secrets/mongo_root_password
+  mongo_app_password:
+    file: ${SHARED_DIR:?Set SHARED_DIR}/secrets/mongo_app_password

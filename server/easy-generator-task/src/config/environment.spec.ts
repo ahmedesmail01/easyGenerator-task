@@ -14,6 +14,8 @@ describe('environment', () => {
       MONGODB_URI: 'mongodb://localhost/db',
       CLIENT_ORIGIN: 'http://example.com',
     },
+    { TRUST_PROXY_HOPS: '-1' },
+    { TRUST_PROXY_HOPS: 'true' },
     { PORT: 'invalid' },
     { SESSION_TTL_SECONDS: '-1' },
     { CLIENT_ORIGIN: 'https://example.com/path' },

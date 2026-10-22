@@ -28,3 +28,7 @@ Local MongoDB must be running at `mongodb://127.0.0.1:27017`, or set `MONGODB_UR
 See [server setup and API documentation](server/easy-generator-task/README.md) for Compass instructions, endpoints, schemas, testing, session security, and production configuration. The authentication forms submit to the API using TanStack Query mutations. Sign-up returns to sign-in, login opens the protected application route, sessions survive reloads via HttpOnly cookies, and logout revokes the session and clears cached user data.
 
 See [AI assistance disclosure](AI.md).
+
+## Production deployment
+
+Docker, HTTPS, MongoDB persistence, backups, and GitHub Actions deployment to Hostinger are documented in [deploy/README.md](deploy/README.md). DNS and VPS/GitHub access must be configured before the workflow can publish a live deployment.

@@ -7,6 +7,11 @@ import express from 'express';
 
 export function setupApp(app: INestApplication) {
   const config = app.get(ConfigService);
+  const proxyHops = config.getOrThrow<number>('TRUST_PROXY_HOPS');
+  if (proxyHops > 0) {
+    const instance = app.getHttpAdapter().getInstance() as express.Express;
+    instance.set('trust proxy', proxyHops);
+  }
   app.use(helmet());
   app.use(express.json({ limit: '16kb' }));
   app.use(cookieParser());

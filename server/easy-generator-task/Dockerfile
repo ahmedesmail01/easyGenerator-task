@@ -1,12 +1,12 @@
 # syntax=docker/dockerfile:1
-FROM oven/bun:1.3.13@sha256:87416c977a612a204eb54ab9f3927023c2a3c971f4f345a01da08ea6262ae30e AS dependencies
+FROM oven/bun:1.4.3@sha256:ec06c3b6cea04192ae6770c434f668ca41d343ad19fa6472216c7b48be39c598 AS dependencies
 WORKDIR /app
 COPY package.json bun.lock ./
 RUN MONGOMS_DISABLE_POSTINSTALL=1 bun install --frozen-lockfile
 FROM dependencies AS build
 COPY . .
 RUN bun --bun run build
-FROM oven/bun:1.3.13@sha256:87416c977a612a204eb54ab9f3927023c2a3c971f4f345a01da08ea6262ae30e AS production-dependencies
+FROM oven/bun:1.4.3@sha256:ec06c3b6cea04192ae6770c434f668ca41d343ad19fa6472216c7b48be39c598 AS production-dependencies
 WORKDIR /app
 COPY package.json bun.lock ./
 RUN bun install --frozen-lockfile --production --ignore-scripts

@@ -27,6 +27,7 @@ For the final review, the approach was to compare the original task PDF with act
 - Unused Vite demo assets and the duplicate template login form were removed after checking imports.
 - The README initially linked to an absent `AI.md`; the scoring review corrected that omission.
 - Deployment was adapted to the VPS's existing Nginx sites rather than replacing the public proxy. Container-only health checks were supplemented with HTTP/cookie/authentication tests and MongoDB restart persistence checks.
+- CI exposed MongoDB’s documented incompatibility with newer hosted Linux kernels. The checks job was moved to a hosted runner with a compatible 6.8 kernel; production already uses 6.8. The allocator safety check was preserved. Runner retirement remains an explicit maintenance item.
 - Generated or proposed work was verified through type checks, linting, tests and browser checks. Failures were treated as evidence to correct the implementation, not as successful validation.
 
 ## Scope and limits

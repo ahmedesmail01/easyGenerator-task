@@ -11,7 +11,9 @@ permissions:
 
 jobs:
   checks:
-    runs-on: ubuntu-24.04
+    # MongoDB 8.x cannot start on some newer hosted kernels (SERVER-121912).
+    # Ubuntu 22.04 hosted runners currently use the compatible 6.8 kernel.
+    runs-on: ubuntu-22.04
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4

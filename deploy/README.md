@@ -149,3 +149,7 @@ Rollback changes application containers, not database contents. Future incompati
 - [Compose secrets](https://docs.docker.com/compose/how-tos/use-secrets/)
 - [GitHub deployment environments](https://docs.github.com/en/actions/concepts/workflows-and-actions/deployment-environments)
 - [Caddy automatic HTTPS](https://caddyserver.com/docs/automatic-https)
+
+### CI host kernel compatibility
+
+The checks job uses the Ubuntu 22.04 hosted runner with kernel 6.8. MongoDB 8.x refuses startup on affected kernels 6.19 through 7.0.13; the VPS currently uses compatible kernel 6.8. See [MongoDB release notes](https://www.mongodb.com/docs/v8.0/release-notes/8.0/) and [GitHub runner image details](https://github.com/actions/runner-images/blob/main/images/ubuntu/Ubuntu2204-Readme.md). Containers share their host kernel, so changing only the container OS does not fix this. Move CI to a supported compatible newer runner as the upstream issue and runner availability change, before Ubuntu 22.04 runners are retired. No kernel-check bypass or production database downgrade is configured.

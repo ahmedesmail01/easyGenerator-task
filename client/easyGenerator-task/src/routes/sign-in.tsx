@@ -25,7 +25,7 @@ function SignInPage() {
         await queryClient.cancelQueries()
         queryClient.clear()
         queryClient.setQueryData(sessionKey, user)
-        await navigate({ to: '/app', replace: true })
+        await navigate({ to: '/', replace: true })
       } finally { mutation.reset() }
     }} />
   </AuthLayout>

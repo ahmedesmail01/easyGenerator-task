@@ -116,7 +116,7 @@ export function LearningHome({ user, welcomeMessage, onLogout, loggingOut, error
         </div>
       </section>
       <section id="possibilities" className="mx-auto max-w-7xl scroll-mt-10 px-5 py-14 md:px-10">
-        <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-[10px] font-semibold tracking-[0.18em] text-muted-foreground uppercase">One idea can change everything</p><h2 className="mt-3 text-3xl font-semibold tracking-tight">What will you teach next?</h2></div><a href="https://www.easygenerator.com/en/" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm font-medium">Get inspired <ArrowRight className="size-4" /></a></div>
+        {/* <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="text-[10px] font-semibold tracking-[0.18em] text-muted-foreground uppercase">One idea can change everything</p><h2 className="mt-3 text-3xl font-semibold tracking-tight">What will you teach next?</h2></div><a href="https://www.easygenerator.com/en/" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm font-medium">Get inspired <ArrowRight className="size-4" /></a></div> */}
         <div className="mt-7 grid gap-4 sm:grid-cols-3">
           {[
             { title: 'A better first day', tag: 'Onboarding', text: 'Help new teammates feel at home, from their very first lesson.', color: 'bg-[#fce2da]', number: '01' },

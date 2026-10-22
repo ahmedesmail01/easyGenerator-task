@@ -100,7 +100,7 @@ All authentication responses use `Cache-Control: no-store`. User responses conta
 
 Sign-up requires at least 8 password characters, a letter, a number, and a non-whitespace special character. Passwords are limited to 128 characters and are never trimmed or lowercased. Sign-in requires a nonempty password, without imposing new password-complexity rules on existing credentials. Confirm password is a frontend-only check; do not send it to this API. Unknown properties are rejected.
 
-Sign-up creates an account but does not automatically sign in. After successful registration, the client should navigate to sign-in. Both unknown emails and incorrect passwords produce the same **401** message. Duplicate normalized emails return **409**. Invalid payloads return **400**, disallowed/missing origins **403**, absent/expired/revoked sessions **401**, and rate limits **429**. Nest's error shape is `{ "statusCode", "message", "error" }`; validation `message` can be an array.
+Sign-up creates an account but does not automatically sign in. After successful registration, the client should navigate to sign-in. Both unknown emails and incorrect passwords produce the same **401** message. Duplicate normalized emails return **409**. Invalid payloads return **400**, disallowed/missing origins **403**, absent/expired/revoked sessions **401**, and rate limits **429**. The error shape is `{ "statusCode", "message", "error", "requestId", "timestamp" }`; validation `message` can be an array. Internal 5xx details are masked. The same request ID is returned as `X-Request-ID`.
 
 ### Try it locally
 
@@ -155,3 +155,11 @@ bun run test:e2e
 Use Node 24 on your PATH. Integration tests start a temporary real MongoDB process through `mongodb-memory-server`, run against an isolated database, and shut it down afterward. The first installation/run may download a MongoDB binary; CI must allow that download or provide a cached binary. Tests never use your Compass database. They cover input validation, password policy, duplicate email constraints, session hashing, protected endpoints, expiry before TTL cleanup, logout/revocation, production cookie flags, origin checks, and rate limiting.
 
 This implements the task's backend authentication scope. Email verification, password reset, and distributed throttling are future extensions, not implemented features.
+
+## API contract and request logging
+
+The OpenAPI 3.0 document is available at `http://localhost:3000/openapi.json` locally and `/api/openapi.json` through the production proxy. Import that URL into an OpenAPI-capable client such as Postman. It documents cookie authentication, the required mutation Origin, validation constraints, response schemas and error statuses. It is a JSON contract, not a Swagger UI. Maintain `src/docs/openapi.ts` alongside endpoint changes.
+
+Nest's built-in JSON ConsoleLogger writes structured events to stdout; Docker rotates those logs. Each completed HTTP request records a generated request ID, method, matched route pattern, status and duration. Aborted requests use status 499. Error logs include the same ID and error class, without raw error messages/stacks that could contain credentials. Bodies, raw URLs/query strings, headers, cookies and tokens are deliberately not logged. Use `docker compose logs` or `deploy/compose.sh logs api` to inspect them. External monitoring/alerting is not configured.
+
+Client form tests run with `bun run test` in the client directory and are required in CI. They test actual input interactions and error recovery, in addition to schema boundary cases.

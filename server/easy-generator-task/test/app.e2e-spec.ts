@@ -48,6 +48,52 @@ describe('MongoDB authentication (isolated database)', () => {
       .expect(200, { status: 'ok' });
   });
 
+  it('returns correlated errors and handles malformed or oversized JSON safely', async () => {
+    const missing = await request(app.getHttpServer())
+      .get('/auth/me')
+      .expect(401);
+    expect(missing.body.requestId).toBe(missing.headers['x-request-id']);
+    expect(missing.body.timestamp).toEqual(expect.any(String));
+    await request(app.getHttpServer())
+      .post('/auth/sign-in')
+      .set('Origin', origin)
+      .set('Content-Type', 'application/json')
+      .send('{"password":"secret",')
+      .expect(400)
+      .expect(({ body }) => {
+        expect(body.message).toBe('Malformed JSON request body');
+        expect(JSON.stringify(body)).not.toContain('secret');
+      });
+    await request(app.getHttpServer())
+      .post('/auth/sign-in')
+      .set('Origin', origin)
+      .send({ email: 'x'.repeat(17000) })
+      .expect(413);
+  });
+
+  it('serves the API contract with cookie authentication and all task endpoints', async () => {
+    const { body } = await request(app.getHttpServer())
+      .get('/openapi.json')
+      .expect(200);
+    expect(body.openapi).toBe('3.0.3');
+    expect(body.components.securitySchemes.sessionCookie).toMatchObject({
+      in: 'cookie',
+      name: 'eg_session',
+    });
+    for (const endpoint of [
+      '/auth/sign-up',
+      '/auth/sign-in',
+      '/auth/sign-out',
+      '/auth/me',
+      '/auth/application',
+      '/health',
+    ])
+      expect(body.paths).toHaveProperty(endpoint);
+    expect(body.paths['/auth/application'].get.security).toEqual([
+      { sessionCookie: [] },
+    ]);
+  });
+
   it('rejects missing/foreign origins and unauthenticated protected access', async () => {
     await request(app.getHttpServer())
       .post('/auth/sign-in')

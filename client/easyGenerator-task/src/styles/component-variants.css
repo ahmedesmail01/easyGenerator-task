@@ -1,0 +1,5 @@
+/* Only the state variants used by our checked-in Base UI components.
+   Component generation stays a separate CLI step, outside application dependencies. */
+@custom-variant data-checked (&:where([data-state="checked"], [data-checked]:not([data-checked="false"])));
+@custom-variant data-horizontal (&:where([data-orientation="horizontal"]));
+@custom-variant data-vertical (&:where([data-orientation="vertical"]));

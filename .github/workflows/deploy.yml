@@ -25,13 +25,16 @@ jobs:
         working-directory: client/easyGenerator-task
         run: |
           bun install --frozen-lockfile
+          bun audit --audit-level high
           bun run lint
+          bun run test
           bun x vite build
           bun run build
       - name: Server checks
         working-directory: server/easy-generator-task
         run: |
           MONGOMS_DISABLE_POSTINSTALL=1 bun install --frozen-lockfile
+          bun audit --audit-level high
           bun run lint
           bun run build
           bun run test

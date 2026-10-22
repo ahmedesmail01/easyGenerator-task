@@ -4,6 +4,9 @@ import { ConfigService } from '@nestjs/config';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import express from 'express';
+import { jsonBodyParser } from './common/http/json-body-parser.js';
+import { requestLogging } from './common/http/request-logging.js';
+import { ApiExceptionFilter } from './common/http/api-exception.filter.js';
 
 export function setupApp(app: INestApplication) {
   const config = app.get(ConfigService);
@@ -12,8 +15,10 @@ export function setupApp(app: INestApplication) {
     const instance = app.getHttpAdapter().getInstance() as express.Express;
     instance.set('trust proxy', proxyHops);
   }
+  app.use(requestLogging);
+  app.useGlobalFilters(new ApiExceptionFilter());
   app.use(helmet());
-  app.use(express.json({ limit: '16kb' }));
+  app.use(jsonBodyParser);
   app.use(cookieParser());
   app.use(
     (
@@ -28,6 +33,7 @@ export function setupApp(app: INestApplication) {
   app.enableCors({
     origin: config.getOrThrow<string>('CLIENT_ORIGIN'),
     credentials: true,
+    exposedHeaders: ['X-Request-ID'],
   });
   app.useGlobalPipes(
     new ValidationPipe({

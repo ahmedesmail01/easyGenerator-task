@@ -2,6 +2,12 @@
 
 One repository containing a React client and NestJS API.
 
+Live application: https://easygenerator.ahmed-esmail.tech/
+
+Repository: https://github.com/ahmedesmail01/easyGenerator-task
+
+See the [submission review and scoring evidence](docs/submission-checklist.md).
+
 - `client/easyGenerator-task`: React, TypeScript, Vite, Tailwind, TanStack Router/Query, React Hook Form, Zod, and Axios.
 - `server/easy-generator-task`: NestJS, MongoDB/Mongoose, scrypt password hashing, and revocable cookie sessions.
 

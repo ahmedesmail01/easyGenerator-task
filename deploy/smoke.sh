@@ -25,7 +25,7 @@ YAML
 compose() { docker compose -p "$project" -f "$root/deploy/compose.yml" -f "$state/override.yml" "$@"; }
 cleanup() {
   status=$?
-  if [[ $status -ne 0 ]]; then compose logs --tail=60 api web >&2 || true; fi
+  if [[ $status -ne 0 ]]; then compose logs --tail=80 mongo api web >&2 || true; fi
   compose down --volumes --remove-orphans >/dev/null 2>&1 || true
   rm -rf -- "$state"
   exit "$status"

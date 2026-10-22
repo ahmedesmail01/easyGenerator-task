@@ -6,7 +6,8 @@ This setup hosts the client, NestJS API, and MongoDB on one VPS. It does not imp
 
 ## Architecture
 
-- Caddy serves the built React app, supports direct SPA links, proxies `/api/*` to NestJS, and automatically obtains/renews TLS certificates.
+- On this VPS, the existing host Nginx terminates HTTPS using Certbot and proxies this domain to Caddy at `127.0.0.1:3020`. Caddy serves React and proxies `/api/*` to NestJS. Other Nginx sites remain independent.
+- On a dedicated server without an existing proxy, the base Compose file supports Caddy automatic HTTPS.
 - Only ports 80 and 443 are published. MongoDB 27017 and API 3000 are private to Docker.
 - MongoDB uses a named persistent volume, root authentication, and a separate application user with `readWrite` access only to `easygenerator`.
 - Passwords are generated on the VPS and mounted as Compose secrets. They are never part of image builds or GitHub artifacts.
@@ -54,11 +55,11 @@ sudo usermod -aG docker deploy
 Reconnect as the deployment account so its Docker group membership takes effect. Then, from the checkout:
 
 ```sh
-bash deploy/init.sh
+bash deploy/init.sh --host-nginx
 nano /opt/easygenerator/shared/.env
 ```
 
-Set a real `ACME_EMAIL` for certificate notices. Leave `DOMAIN`, `SHARED_DIR`, and the default HTTPS origin as configured. `init.sh` is idempotent: it does not regenerate existing database passwords. Do not regenerate or edit password files after the MongoDB volume has initialized; password rotation requires updating the MongoDB users too.
+Verify `DOMAIN` and `SHARED_DIR`. For this VPS, install `deploy/nginx.conf` as a new site, test with `nginx -t`, then reload Nginx. Obtain a certificate with Certbot webroot `/var/www/easygenerator-acme` once DNS resolves, and enable HTTPS for this domain only. Certbot renewal must reload Nginx. The `--host-nginx` marker enables `compose.nginx.yml`, keeping Caddy bound to localhost. `init.sh` is idempotent: it does not regenerate existing database passwords. Do not regenerate or edit password files after the MongoDB volume has initialized; password rotation requires updating the MongoDB users too.
 
 The shared directory is mode 0700. Secret files inside are readable by their intended non-root containers through mounted secret paths; they cannot be reached by other host users through the protected parent directory.
 
@@ -109,8 +110,8 @@ From the deployment account on the VPS:
 cd /opt/easygenerator/current
 export IMAGE_TAG=$(basename "$(pwd -P)")
 # The shared env file contains only operational settings, not database passwords.
-docker compose --env-file /opt/easygenerator/shared/.env -f deploy/compose.yml ps
-docker compose --env-file /opt/easygenerator/shared/.env -f deploy/compose.yml logs --tail=100 api web
+bash deploy/compose.sh ps
+bash deploy/compose.sh logs --tail=100 api web
 ```
 
 Never run `docker compose down -v` for this production project: that deletes persistent volumes. Do not run global Docker pruning commands on a VPS hosting other applications. Retain the current and previous release's images for rollback; remove older application-specific image tags and release directories deliberately when disk usage needs it. Keep OS and Docker patched, and review/pull supported MongoDB 8.0 patch releases during planned maintenance.
@@ -135,7 +136,7 @@ Choose an existing previous release SHA whose images are still present:
 
 ```sh
 cd /opt/easygenerator/releases/PREVIOUS_SHA
-IMAGE_TAG=PREVIOUS_SHA docker compose --env-file /opt/easygenerator/shared/.env -f deploy/compose.yml up -d --wait
+IMAGE_TAG=PREVIOUS_SHA docker compose --env-file /opt/easygenerator/shared/.env -f deploy/compose.yml -f deploy/compose.nginx.yml up -d --wait
 curl --fail https://easygenerator.ahmed-esmail.tech/api/health
 ln -sfn /opt/easygenerator/releases/PREVIOUS_SHA /opt/easygenerator/current
 ```

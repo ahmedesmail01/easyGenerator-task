@@ -6,14 +6,16 @@ base=/opt/easygenerator
 release="$base/releases/$sha"
 shared="$base/shared"
 [[ -f "$shared/.env" && -s "$shared/secrets/mongo_app_password" ]] || { echo 'Run deploy/init.sh first' >&2; exit 1; }
-if grep -q '^ACME_EMAIL=replace-' "$shared/.env"; then
-  echo 'Set a real ACME_EMAIL in shared/.env before deployment.' >&2
-  exit 1
-fi
 exec 9>"$shared/deploy.lock"
 flock 9
 previous=$(readlink -f "$base/current" 2>/dev/null || true)
-compose() { IMAGE_TAG="$1" docker compose --env-file "$shared/.env" -f "$2/deploy/compose.yml" "${@:3}"; }
+compose() {
+  local tag="$1" directory="$2"
+  shift 2
+  local args=(--env-file "$shared/.env" -f "$directory/deploy/compose.yml")
+  if [[ -f "$shared/host-nginx" ]]; then args+=(-f "$directory/deploy/compose.nginx.yml"); fi
+  IMAGE_TAG="$tag" docker compose "${args[@]}" "$@"
+}
 rollback() {
   status=$?
   if [[ $status -ne 0 && -n "$previous" && -f "$previous/deploy/compose.yml" ]]; then

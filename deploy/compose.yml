@@ -61,8 +61,7 @@ services:
     mem_limit: 256m
     restart: unless-stopped
     environment:
-      DOMAIN: ${DOMAIN:?Set DOMAIN}
-      ACME_EMAIL: ${ACME_EMAIL:?Set ACME_EMAIL}
+      CADDY_ADDRESS: ${DOMAIN:?Set DOMAIN}
     ports:
       - "80:80"
       - "443:443"

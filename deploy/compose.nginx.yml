@@ -1,0 +1,7 @@
+# Use when the VPS already has Nginx terminating public TLS.
+services:
+  web:
+    environment:
+      CADDY_ADDRESS: ":80"
+    ports: !override
+      - "127.0.0.1:3020:80"

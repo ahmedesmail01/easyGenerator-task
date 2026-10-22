@@ -4,6 +4,8 @@ One repository containing a React client and NestJS API.
 
 Live application: https://easygenerator.ahmed-esmail.tech/
 
+Interactive API docs: https://easygenerator.ahmed-esmail.tech/api/docs
+
 Repository: https://github.com/ahmedesmail01/easyGenerator-task
 
 See the [submission review and scoring evidence](docs/submission-checklist.md).

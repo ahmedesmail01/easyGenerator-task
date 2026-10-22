@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import express from 'express';
 import { jsonBodyParser } from './common/http/json-body-parser.js';
 import { requestLogging } from './common/http/request-logging.js';
+import { setupSwagger } from './docs/setup-swagger.js';
 import { ApiExceptionFilter } from './common/http/api-exception.filter.js';
 
 export function setupApp(app: INestApplication) {
@@ -42,5 +43,6 @@ export function setupApp(app: INestApplication) {
       forbidNonWhitelisted: true,
     }),
   );
+  setupSwagger(app);
   app.enableShutdownHooks();
 }

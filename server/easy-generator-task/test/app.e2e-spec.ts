@@ -71,6 +71,14 @@ describe('MongoDB authentication (isolated database)', () => {
       .expect(413);
   });
 
+  it('serves Swagger UI and its local assets', async () => {
+    await request(app.getHttpServer()).get('/docs').expect(200)
+      .expect('Content-Type', /html/).expect(({ text }) => expect(text).toContain('swagger-ui'));
+    await request(app.getHttpServer()).get('/docs/swagger-ui-bundle.js').expect(200);
+    await request(app.getHttpServer()).get('/docs/swagger-ui-init.js').expect(200)
+      .expect(({ text }) => expect(text).toContain('withCredentials'));
+  });
+
   it('serves the API contract with cookie authentication and all task endpoints', async () => {
     const { body } = await request(app.getHttpServer())
       .get('/openapi.json')

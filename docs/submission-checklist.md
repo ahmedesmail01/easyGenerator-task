@@ -12,7 +12,7 @@ The assignment is an authentication module, not a full LMS implementation. Deliv
 | Error handling bonus | Consistent `statusCode`, `message`, `error`, `requestId`, `timestamp`; generic internal errors; malformed/oversized JSON handling; form error recovery and visible 404. |
 | Testing bonus | Password/DTO/config/error/logging unit tests; user-facing client form tests; isolated real MongoDB HTTP tests; Docker smoke tests with persistence and cookie/CSRF checks. |
 | CI/CD bonus | `.github/workflows/deploy.yml`: client/server checks, tested images, disposable full-stack smoke test, SSH deployment, health verification and rollback attempt. |
-| API documentation bonus | Server README with examples and `/openapi.json` (`/api/openapi.json` through the production proxy), including schemas, statuses, cookie authentication and Origin requirements. |
+| API documentation bonus | Swagger UI at `/api/docs`, server README with examples and `/openapi.json` (`/api/openapi.json` through the production proxy), including schemas, statuses, cookie authentication and Origin requirements. |
 | Mandatory disclosure | Root `AI.md` describes assistance, effective approaches, corrections and limitations. |
 
 ## Run the checks
